@@ -17,8 +17,9 @@ Ali_ESA_API_DEFAULT="https://esa.ap-southeast-1.aliyuncs.com/"
 #Usage: dns_aliesa_add   _acme-challenge.www.domain.com   "XKrxpRBosdIKFzxW_CT3KLZNf6q0HG9i01zxXp5CPBs"
 dns_aliesa_add() {
   #the API only accepts punycode for IDN domains, and a raw UTF-8 domain
-  #also breaks the request signature
-  fulldomain="$(_idn "$1")"
+  #also breaks the request signature.
+  #the record name must be lower case, and DNS names are case-insensitive.
+  fulldomain="$(printf "%s" "$(_idn "$1")" | tr '[:upper:]' '[:lower:]')"
   txtvalue="$2"
 
   if [ -z "$fulldomain" ]; then
@@ -39,7 +40,7 @@ dns_aliesa_add() {
 }
 
 dns_aliesa_rm() {
-  fulldomain="$(_idn "$1")"
+  fulldomain="$(printf "%s" "$(_idn "$1")" | tr '[:upper:]' '[:lower:]')"
 
   if [ -z "$fulldomain" ]; then
     _err "Cannot convert the domain to punycode: $1"
